@@ -6,12 +6,17 @@ from cryptography.fernet import Fernet
 # ------------- RSA Decryption -------------
 
 def rsa_decrypt(key, encrypted_string):
-    return 'rsa decrpytion'
+    decrypted_string = rsa.decrypt(encrypted_string, key).decode() # convert bytes to string
+    return decrypted_string
 
 # ------------- Fernet Decryption -------------
 def fernet_decrypt(key, encrypted_string):
-    return 'fernet decryption'
+    f_key = Fernet(key)
+    decrypted_string = f_key.decrypt(encrypted_string)
+    return decrypted_string.decode()
 
+
+# ----------------------------------------------------
 # establishing object for server side socket, binding to port 4444
 context = zmq.Context()
 socket = context.socket(zmq.REP)
@@ -22,6 +27,9 @@ socket.bind("tcp://*:4444")
 # this socket must connect (not bind) to "tcp://localhost:4444"
 print("Decryption server is live - awaiting requests from clients.")
 
+# ----------------------------------------------------
+# Main micro-service loop
+# ----------------------------------------------------
 while True:
 
     message = socket.recv()
@@ -37,11 +45,21 @@ while True:
         enc_method, key, encrypted_string = message.decode().split(" ")
 
         if enc_method == 'rsa':
-            decrypted_string = rsa_decrypt(key, encrypted_string)
+            # turn the private key from string to rsa.PrivateKey object
+            priv_key = rsa.PrivateKey.load_pkcs1(key.encode())
+            # turn the encrypted string (hex) into bytes
+            encrypted_string_bytes = bytes.fromhex(encrypted_string)
+
+            decrypted_string = rsa_decrypt(priv_key, encrypted_string_bytes)
+
+            # function above should return string
             socket.send_string(decrypted_string)
         elif enc_method == 'fernet':
             decrypted_string = fernet_decrypt(key, encrypted_string)
+
+            #function above should return string
             socket.send_string(decrypted_string)
+            
         # send back an error message for an invalid decryption method
         else:
             socket.send_string("Error: invalid decrpytion method provided.")
