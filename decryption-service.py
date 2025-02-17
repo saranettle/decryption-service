@@ -6,11 +6,11 @@ from cryptography.fernet import Fernet
 # ------------- RSA Decryption -------------
 
 def rsa_decrypt(key, encrypted_string):
-    print("rsa decryption")
+    return 'rsa decrpytion'
 
 # ------------- Fernet Decryption -------------
 def fernet_decrypt(key, encrypted_string):
-    print("fernet decryption")
+    return 'fernet decryption'
 
 # establishing object for server side socket, binding to port 4444
 context = zmq.Context()
