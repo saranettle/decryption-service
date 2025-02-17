@@ -1,0 +1,1 @@
+This decyption service will function as a micro-service for another Python application providing public/private keys plus the encrypted strings.
