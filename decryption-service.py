@@ -48,12 +48,12 @@ while True:
 
         if argument_list[0] == 'rsa':
             
-            mod = argument_list[1]
-            exponent = argument_list[2]
-            priv_key_string = argument_list[3]
-            prime_1 = argument_list[4]
-            prime_2 = argument_list[5]
-            decrpytable_enc_string = argument_list[6]
+            mod = int(argument_list[1])
+            exponent = int(argument_list[2])
+            priv_key_string = int(argument_list[3])
+            prime_1 = int(argument_list[4])
+            prime_2 = int(argument_list[5])
+            decrpytable_enc_string = bytes.fromhex(argument_list[6])
 
             # recreate the RSA private key
             key = rsa.PrivateKey(mod, exponent, priv_key_string, prime_1, prime_2)
