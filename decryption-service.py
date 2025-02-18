@@ -6,7 +6,7 @@ from cryptography.fernet import Fernet
 # ------------- RSA Decryption -------------
 
 def rsa_decrypt(key, encrypted_string):
-    decrypted_string = rsa.decrypt(encrypted_string, key).decode() # convert bytes to string
+    decrypted_string = rsa.decrypt(encrypted_string, key).decode()
     return decrypted_string
 
 # ------------- Fernet Decryption -------------
@@ -39,22 +39,32 @@ while True:
         if message.decode() == 'quit':
             break
 
-        # the message from the client will contain 3 items: encrpytion method, key, and encrypted string
-        # the message will be sent as a string, with the 3 items separated by a single space ' '
-        # example message: 'encryptionmethod key encryptedstring'
-        enc_method, key, encrypted_string = message.decode().split(" ")
 
-        if enc_method == 'rsa':
-            # turn the private key from string to rsa.PrivateKey object
-            priv_key = rsa.PrivateKey.load_pkcs1(key.encode())
-            # turn the encrypted string (hex) into bytes
-            encrypted_string_bytes = bytes.fromhex(encrypted_string)
+        # splitting the message into a list of arguments separated by ' '
+        # for fernet, the string message should look like 'fernet key encrypted_string'
+        # for rsa, the string message should look like 'rsa mod exponent priv_key_string prime_1 prime_2 decrpytable_enc_string'
 
-            decrypted_string = rsa_decrypt(priv_key, encrypted_string_bytes)
+        argument_list = message.decode().split(" ")
 
-            # function above should return string
+        if argument_list[0] == 'rsa':
+            
+            mod = argument_list[1]
+            exponent = argument_list[2]
+            priv_key_string = argument_list[3]
+            prime_1 = argument_list[4]
+            prime_2 = argument_list[5]
+            decrpytable_enc_string = argument_list[6]
+
+            # recreate the RSA private key
+            key = rsa.PrivateKey(mod, exponent, priv_key_string, prime_1, prime_2)
+
+            # call function to decrpyt string (returns string)
+            decrypted_string = rsa_decrypt(key, decrpytable_enc_string)
             socket.send_string(decrypted_string)
-        elif enc_method == 'fernet':
+
+        elif argument_list[0] == 'fernet':
+            key = argument_list[1]
+            encrypted_string = argument_list[2]
             decrypted_string = fernet_decrypt(key, encrypted_string)
 
             #function above should return string
