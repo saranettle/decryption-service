@@ -35,6 +35,9 @@ while True:
     message = socket.recv()
 
     if len(message) > 0:
+
+        print("Received message: ", message.decode())
+
         # to terminate the service, send quit via the client-side socket
         if message.decode() == 'quit':
             break
