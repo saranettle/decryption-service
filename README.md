@@ -3,6 +3,38 @@ This is a Python program utilizing ZeroMQ, RSA, and Fernet Crpytography, created
 
 https://github.com/aandrews72/CS361-Sprint1
 
+## CS361 Assignment 8 Requirements:
+### How to programmatically REQUEST data
+The client needs to use ZeroMQ to connect to the correct port number corresponding to the microservice port.
+```
+context = zmq.Context()
+socket = context.socket(zmq.REQ)
+socket.connect("tcp://localhost:4444")
+```
+Next, the client needs to send the request to decrpyt an encrypted string by combining the following items into a single string:
+```
+# For Fernet
+message = 'fernet key encrypted_string'
+# For RSA
+message = 'rsa mod exponent priv_key_string prime_1 prime_2 decrpytable_enc_string'
+```
+The message is sent to the microservice via the ZeroMQ socket.
+```
+socket.send_string(message)
+```
+Note that the message will be sent as bytes.
+
+### How to programmatically RECEIVE data
+The server will send the decrypted string back as a series of bytes. To receive this and display the message to the console:
+```
+decrypted_message = socket.recv()
+print(decrypted_message.decode()")
+# .decode() converts the raw bytes back to human-readable text
+```
+
+### UML Sequence Diagram
+![UML Sequence Diagram](/uml-sequence.png)
+
 ## Main Decryption Service File
 decription-service.py serves as the main program of this repository. It does the following:
 
